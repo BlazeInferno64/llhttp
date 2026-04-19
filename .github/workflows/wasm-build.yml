@@ -19,14 +19,21 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Generate C and Build WASM
+      - name: Generate C Source
         run: |
-          # 1. Force the generation of C files from TS
+          # This command triggers the llparse generator to create llhttp.c and llhttp.h
           npm run build
           
-          # 2. Compile the C files into a standalone WASM module
-          # We use -s SIDE_MODULE=1 so it's a library we can load in JS
-          emcc build/llhttp.c build/api.c \
+          # Check if files exist to prevent the previous "No such file" error
+          ls -R build/
+
+      - name: Build WASM
+        run: |
+          # -Ibuild tells emcc to look in the build folder for headers like llhttp.h
+          # We include api.c from the src/native folder if it's not in build/
+          emcc build/llhttp.c src/native/api.c \
+            -Ibuild \
+            -Isrc/native \
             -Os \
             -s WASM=1 \
             -s SIDE_MODULE=1 \
