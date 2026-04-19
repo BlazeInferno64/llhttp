@@ -1,0 +1,20 @@
+name: Build WASM Binary
+on: [workflow_dispatch] # Allows you to run it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mymindstorm/setup-emsdk@v14 # Sets up the WASM compiler
+      - name: Install dependencies
+        run: npm install
+      - name: Generate C and Build WASM
+        run: |
+          make
+          emcc build/llhttp.c build/api.c -Os -s WASM=1 -s SIDE_MODULE=1 -o llhttp.wasm
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: llhttp-wasm-binary
+          path: llhttp.wasm
