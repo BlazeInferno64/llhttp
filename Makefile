@@ -43,7 +43,7 @@ build/c/llhttp.c: generate
 build/native:
 	mkdir -p build/native
 
-release: clean generate
+release: clean all generate
 	@echo "${RELEASE}" | grep -q -E ".+" || { echo "Please make sure the RELEASE argument is set."; exit 1; }
 	rm -rf release
 	mkdir -p release/cmake
@@ -54,7 +54,7 @@ release: clean generate
 	cp -rf src/native/*.c release/src/
 	cp -rf src/llhttp.gyp release/
 	cp -rf src/common.gypi release/
-	cp -rf cmake/llhttp-config.cmake.in release/cmake
+	cp -rf cmake/llhttpConfig.cmake.in release/cmake
 	sed s/_RELEASE_/$(RELEASE)/ CMakeLists.txt > release/CMakeLists.txt
 	cp -rf libllhttp.pc.in release/
 	cp -rf README.md release/
@@ -76,8 +76,8 @@ postversion: release
 	git push
 	git checkout release --
 	cp -rf release/* ./
-	rm -rf release
-	git add include src *.gyp *.gypi CMakeLists.txt README.md LICENSE libllhttp.pc.in
+	rm -rf build release
+	git add include src *.gyp *.gypi CMakeLists.txt README.md LICENSE libllhttp.pc.in cmake/llhttpConfig.cmake.in
 	git commit -a -m "release: $(RELEASE)"
 	git tag "release/v$(RELEASE)"
 	git push && git push --tags
